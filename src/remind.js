@@ -2,6 +2,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import http from 'http';
 import { argv as args } from 'yargs';
 import R from 'ramda';
 import twilio from 'twilio';
@@ -15,6 +16,7 @@ const __DURATIONS__ = {
 };
 const __TIMEZONE__ = 'America/Los_Angeles';
 const __CRON_SCHEDULE__ = '* * * * * *';
+const __JOKE_ENDPOINT__ = 'http://api.icndb.com/jokes/random?firstName=Roger&lastName=Feus';
 
 export default class Remind {
 
@@ -109,10 +111,28 @@ export default class Remind {
         return;
       }
       if (add.reminder === '__random__') {
-        // TODO: fetch random joke and replace reminder with joke text
+        http.get(__JOKE_ENDPOINT__, (resp) => {
+          let __respJSON = '';
+          resp.on('data', (chunk) => {
+            __respJSON += chunk;
+          });
+          resp.on('end', () => {
+            let __resp = JSON.parse(__respJSON);
+            if (__resp.type === 'success') {
+              let __joke = {
+                id: add.id,
+                tag: 'joke',
+                reminder: __resp.value.joke
+              };
+              this.__reminders.push(__joke);
+              this.__write();
+            }
+          });
+        });
+      } else {
+        this.__reminders.push(add);
+        this.__write();
       }
-      this.__reminders.push(add);
-      this.__write();
     }
   }
 
