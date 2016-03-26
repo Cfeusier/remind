@@ -11,8 +11,17 @@ export default class Remind {
   constructor() {
     this.__twilio = null;
     this.__config = {};
-    this.__reminders = JSON.parse(fs.readFileSync(path.resolve('data/reminders.json'), 'utf8')).reminders;
-    this.__sent = [];
+    try {
+      this.__reminders = this.__fetchReminders();
+    } catch (err) {
+      fs.writeFileSync(path.resolve('data/reminders.json'), JSON.stringify({ reminders: [] }));
+      this.__reminders = [];
+      this.__sent = [];
+    }
+  }
+
+  __fetchReminders() {
+    return JSON.parse(fs.readFileSync(path.resolve('data/reminders.json'), 'utf8')).reminders;
   }
 
   __deactivate() {
@@ -42,6 +51,9 @@ export default class Remind {
     if (add.reminder) {
       if (R.find(R.propEq('id', add.id), this.__reminders)) {
         return;
+      }
+      if (add.reminder === '__random__') {
+        // TODO: fetch random joke and replace reminder with joke text
       }
       this.__reminders.push(add);
       let __newReminders = JSON.stringify({ reminders: this.__reminders });
