@@ -9,6 +9,7 @@ export default class Remind {
   constructor() {
     this.__twilio = null;
     this.__config = {};
+    this.__reminders = [];
   }
 
   __deactivate() {
@@ -18,6 +19,9 @@ export default class Remind {
   __activate(on) {
     this.__twilio = twilio(on.twilioSID, on.twilioToken);
     this.__config = R.omit(['twilioSID', 'twilioToken'], on);
+    if (this.__reminders.length) {
+      console.log(this.__reminders);
+    }
   }
 
   __add(add) {
