@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+
+'use strict';
+
+var path = require('path');
+process.title = 'remind';
+var Remind = require(path.resolve(__dirname, '../dist/remind.js')).default;
+(new Remind()).run();

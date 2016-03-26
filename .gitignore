@@ -1,0 +1,9 @@
+logs
+*.log
+pids
+*.pid
+*.seed
+.lock-wscript
+dist/
+build/Release
+node_modules
