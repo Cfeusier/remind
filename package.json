@@ -1,12 +1,12 @@
 {
-  "name": "remind",
+  "name": "remind-cli",
   "version": "0.0.0",
   "preferGlobal": "true",
-  "description": "Remind will send text messages of your choosing at given intervals",
+  "description": "Remind-CLI will send text messages of your choosing at given intervals",
   "author": "Clark Feusier <cfeusier@gmail.com>",
   "license": "MIT",
   "bin": {
-    "remind": "./bin/remind"
+    "remind-cli": "./bin/remind"
   },
   "scripts": {
     "build": "WEBPACK_ENV=build webpack",
