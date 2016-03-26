@@ -1,5 +1,7 @@
 'use strict';
 
+import fs from 'fs';
+import path from 'path';
 import { argv as args } from 'yargs';
 import R from 'ramda';
 import twilio from 'twilio';
@@ -9,7 +11,7 @@ export default class Remind {
   constructor() {
     this.__twilio = null;
     this.__config = {};
-    this.__reminders = [];
+    this.__reminders = JSON.parse(fs.readFileSync(path.resolve('data/reminders.json'), 'utf8')).reminders;
     this.__sent = [];
   }
 
@@ -37,7 +39,18 @@ export default class Remind {
   }
 
   __add(add) {
-    console.log(add);
+    if (add.reminder) {
+      if (R.find(R.propEq('id', add.id), this.__reminders)) {
+        return;
+      }
+      this.__reminders.push(add);
+      let __newReminders = JSON.stringify({ reminders: this.__reminders });
+      fs.writeFile(path.resolve('data/reminders.json'), __newReminders, (err) => {
+        if (err) {
+          throw Error('Error adding reminder -- please try again');
+        }
+      });
+    }
   }
 
   __remove(id) {
