@@ -44,31 +44,23 @@ export default class Remind {
     console.log(`removing ${id}`);
   }
 
-  run() {
-    // { minterval: y|mon|d|h|min, random: Boolean, phone: PhoneNumber, twilioSID: SID, twilioToken: AuthToken }
-    let __on = args.on;
-    // boolean
-    let __off = args.off;
-    // { tag: String, id: String, reminder: String|__random__ }
-    let __add = args.add;
-    // id
-    let __remove = args.remove;
-
+  __routeCommands(__on, __off, __add, __remove) {
     if (__off) {
       this.__deactivate();
     }
-
     if (__on && __on.phone && __on.twilioSID && __on.twilioToken) {
       this.__activate(__on);
     }
-
     if (__add) {
       this.__add(__add);
     }
-
     if (__remove) {
       this.__remove(__remove.id);
     }
+  }
+
+  run() {
+    this.__routeCommands(args.on, args.off, args.add, args.remove);
   }
 
 }
