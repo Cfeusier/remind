@@ -33,10 +33,11 @@ export default class Remind {
   __activate(on) {
     this.__twilio = twilio(on.twilioSID, on.twilioToken);
     this.__config = R.omit(['twilioSID', 'twilioToken'], on);
+    this.__send();
   }
 
   __add(add) {
-    console.log('adding');
+    console.log(add);
   }
 
   __remove(id) {

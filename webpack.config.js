@@ -4,15 +4,12 @@ var webpack = require('webpack'),
     nodeExternals = require('webpack-node-externals'),
     path = require('path');
 
-var libraryName = 'remind';
-
-var plugins = [], outputFile;
+var libraryName = 'remind',
+    plugins = [],
+    outputFile = libraryName + '.js';
 
 if (env === 'build') {
   plugins.push(new UglifyJsPlugin({ minimize: true }));
-  outputFile = libraryName + '.min.js';
-} else {
-  outputFile = libraryName + '.js';
 }
 
 var config = {
