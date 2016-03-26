@@ -6,10 +6,9 @@ My dad has pancreatic cancer. I want to remind him that I love him &mdash; often
 
 ### Functional Specification
 
-r1. CLI to turn _remind_ on / off
+r1. CLI to turn _remind_ on with a given schedule
 
-- `remind --on.phone=<PHONE_NUMBER> --on.twilioSID=<TWILIO_SID> --on.twilioToken=<TWILIO_AUTH_TOKEN>`
-- `remind --off`
+- `remind --on.phone=<TARGET_PHONE_NUMBER> --on.twilioSID=<TWILIO_SID> --on.twilioToken=<TWILIO_AUTH_TOKEN> --on.twilioPhone=<TWILIO_FROM_PHONE_NUMBER> --on.every=<h|min|d|mon|y>`
 
 r2. CLI to add / remove _reminders_
 

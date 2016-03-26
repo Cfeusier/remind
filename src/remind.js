@@ -5,6 +5,16 @@ import path from 'path';
 import { argv as args } from 'yargs';
 import R from 'ramda';
 import twilio from 'twilio';
+import { CronJob as cron } from 'cron';
+const __DURATIONS__ = {
+  h: 3600000,
+  min: 60000,
+  mon: 2592000000,
+  y: 31536000000,
+  d: 86400000
+};
+const __TIMEZONE__ = 'America/Los_Angeles';
+const __CRON_SCHEDULE__ = '* * * * * *';
 
 export default class Remind {
 
@@ -33,6 +43,10 @@ export default class Remind {
     return { reminders: this.__reminders, sent: this.__sent, lubo: this.__lubo, config: this.__config };
   }
 
+  __reminder(body) {
+    return { to: `+${this.__config.phone}`, from: `+${this.__config.twilioPhone}`, body: body };
+  }
+
   __write(cb) {
     fs.writeFile(path.resolve('data/reminders.json'), JSON.stringify(this.__payload()), (err) => {
       if (err) {
@@ -44,27 +58,49 @@ export default class Remind {
     });
   }
 
-  __deactivate() {
-    console.log('deactivating');
+  __handleFailure(err) {
+    if (err) {
+      throw Error(`Error sending reminder with id: ${reminder.id}`);
+    }
+  }
+
+  __triggerSMS(data) {
+    this.__twilio.sendMessage(this.__reminder.call(this, data.reminder), this.__handleFailure.bind(this));
   }
 
   __send() {
     if (this.__reminders.length) {
-      // go through each reminder
-      // send reminder
-      // move reminder to __sent
-      console.log(this);
-    } else if (this.__sent.length) {
+      let __interval = this.__config.every ? this.__config.every : 'h';
+      let __duration = __DURATIONS__[__interval];
+      let __now = Date.now();
+      if (this.__lubo.ts) {
+        let __elapsed = __now - this.__lubo.ts;
+        if ( __elapsed >= __duration) {
+          let __reminder = this.__reminders.pop();
+          this.__sent.push(__reminder);
+          this.__lubo.ts = Date.now();
+          this.__triggerSMS(__reminder);
+        }
+      } else {
+        let __reminder = this.__reminders.pop();
+        this.__sent.push(__reminder);
+        this.__lubo.ts = Date.now();
+        this.__triggerSMS(__reminder);
+      }
+    } else {
       this.__reminders = this.__sent.slice();
       this.__sent = [];
-      this.__send();
+      if (!this.__reminders.length) {
+        throw Error('Error sending reminders -- must add a reminder first');
+      }
     }
   }
 
   __activate(on) {
     this.__twilio = twilio(on.twilioSID, on.twilioToken);
     this.__config = R.omit(['twilioSID', 'twilioToken'], on);
-    this.__write(this.__send.bind(this));
+    let __job = new cron(__CRON_SCHEDULE__, this.__send.bind(this), null, false, __TIMEZONE__);
+    this.__write(__job.start.bind(__job));
   }
 
   __add(add) {
@@ -76,20 +112,23 @@ export default class Remind {
         // TODO: fetch random joke and replace reminder with joke text
       }
       this.__reminders.push(add);
-      // TODO: update lubo
       this.__write();
     }
   }
 
   __remove(id) {
-    console.log(`removing ${id}`);
+    let __idx = R.findIndex(R.propEq('id', id), this.__reminders);
+    if (__idx > -1) {
+      this.__reminders.splice(__idx, 1);
+      this.__write();
+      console.log(`Successfully removed reminder with id: ${id}`);
+    } else {
+      console.log(`No reminder found with id: ${id}`);
+    }
   }
 
-  __routeCommands(__on, __off, __add, __remove) {
-    if (__off) {
-      this.__deactivate();
-    }
-    if (__on && __on.phone && __on.twilioSID && __on.twilioToken) {
+  __routeCommands(__on, __add, __remove) {
+    if (__on && __on.phone && __on.twilioSID && __on.twilioToken && __on.twilioPhone) {
       this.__activate(__on);
     }
     if (__add) {
@@ -101,7 +140,7 @@ export default class Remind {
   }
 
   run() {
-    this.__routeCommands(args.on, args.off, args.add, args.remove);
+    this.__routeCommands(args.on, args.add, args.remove);
   }
 
 }
