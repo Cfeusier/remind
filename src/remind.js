@@ -10,18 +10,38 @@ export default class Remind {
 
   constructor() {
     this.__twilio = null;
-    this.__config = {};
+    this.__fetch();
+  }
+
+  __fetch() {
     try {
-      this.__reminders = this.__fetchReminders();
+      let __data = JSON.parse(fs.readFileSync(path.resolve('data/reminders.json'), 'utf8'));
+      this.__reminders = __data.reminders;
+      this.__sent = __data.sent;
+      this.__lubo = __data.lubo;
+      this.__config = __data.config;
     } catch (err) {
-      fs.writeFileSync(path.resolve('data/reminders.json'), JSON.stringify({ reminders: [] }));
+      fs.writeFileSync(path.resolve('data/reminders.json'), JSON.stringify({ reminders: [], sent: [], lubo: {}, config: {} }));
       this.__reminders = [];
       this.__sent = [];
+      this.__lubo = {};
+      this.__config = {};
     }
   }
 
-  __fetchReminders() {
-    return JSON.parse(fs.readFileSync(path.resolve('data/reminders.json'), 'utf8')).reminders;
+  __payload() {
+    return { reminders: this.__reminders, sent: this.__sent, lubo: this.__lubo, config: this.__config };
+  }
+
+  __write(cb) {
+    fs.writeFile(path.resolve('data/reminders.json'), JSON.stringify(this.__payload()), (err) => {
+      if (err) {
+        throw Error('Error adding reminder -- please try again');
+      }
+      if (cb) {
+        cb();
+      }
+    });
   }
 
   __deactivate() {
@@ -33,7 +53,7 @@ export default class Remind {
       // go through each reminder
       // send reminder
       // move reminder to __sent
-      console.log(this.__reminders);
+      console.log(this);
     } else if (this.__sent.length) {
       this.__reminders = this.__sent.slice();
       this.__sent = [];
@@ -44,7 +64,7 @@ export default class Remind {
   __activate(on) {
     this.__twilio = twilio(on.twilioSID, on.twilioToken);
     this.__config = R.omit(['twilioSID', 'twilioToken'], on);
-    this.__send();
+    this.__write(this.__send.bind(this));
   }
 
   __add(add) {
@@ -56,12 +76,8 @@ export default class Remind {
         // TODO: fetch random joke and replace reminder with joke text
       }
       this.__reminders.push(add);
-      let __newReminders = JSON.stringify({ reminders: this.__reminders });
-      fs.writeFile(path.resolve('data/reminders.json'), __newReminders, (err) => {
-        if (err) {
-          throw Error('Error adding reminder -- please try again');
-        }
-      });
+      // TODO: update lubo
+      this.__write();
     }
   }
 
