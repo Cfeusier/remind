@@ -10,18 +10,29 @@ export default class Remind {
     this.__twilio = null;
     this.__config = {};
     this.__reminders = [];
+    this.__sent = [];
   }
 
   __deactivate() {
     console.log('deactivating');
   }
 
+  __send() {
+    if (this.__reminders.length) {
+      // go through each reminder
+      // send reminder
+      // move reminder to __sent
+      console.log(this.__reminders);
+    } else if (this.__sent.length) {
+      this.__reminders = this.__sent.slice();
+      this.__sent = [];
+      this.__send();
+    }
+  }
+
   __activate(on) {
     this.__twilio = twilio(on.twilioSID, on.twilioToken);
     this.__config = R.omit(['twilioSID', 'twilioToken'], on);
-    if (this.__reminders.length) {
-      console.log(this.__reminders);
-    }
   }
 
   __add(add) {
