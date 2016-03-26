@@ -13,6 +13,6 @@ r1. CLI to turn _remind_ on with a given schedule
 r2. CLI to add / remove _reminders_
 
 - `remind --add.tag=love --add.id=L1 --add.reminder='I love you dude'`
-- `remind --add.tag=joke --add.id=J1 --add.reminder='__random'`
+- `remind --add.tag=joke --add.id=J1 --add.reminder='__random__'` (generates random joke)
 
 - `remind --remove="J1"`
