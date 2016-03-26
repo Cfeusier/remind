@@ -5,6 +5,6 @@ pids
 *.seed
 .lock-wscript
 dist/
-data/
+data/reminders.json
 build/Release
 node_modules
