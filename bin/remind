@@ -4,5 +4,5 @@
 
 var path = require('path');
 process.title = 'remind';
-var Remind = require(path.resolve(__dirname, '../dist/remind.js')).default;
+var Remind = require(path.resolve(__dirname, './remind.js')).default;
 (new Remind()).run();
