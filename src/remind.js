@@ -33,7 +33,7 @@ export default class Remind {
       this.__lubo = __data.lubo;
       this.__config = __data.config;
     } catch (err) {
-      fs.writeFileSync(path.resolve('bin/reminders.json'), JSON.stringify({ reminders: [], sent: [], lubo: {}, config: {} }));
+      fs.writeFileSync(path.resolve('reminders.json'), JSON.stringify({ reminders: [], sent: [], lubo: {}, config: {} }));
       this.__reminders = [];
       this.__sent = [];
       this.__lubo = {};
@@ -50,7 +50,7 @@ export default class Remind {
   }
 
   __write(cb) {
-    fs.writeFile(path.resolve('bin/reminders.json'), JSON.stringify(this.__payload()), (err) => {
+    fs.writeFile(path.resolve('reminders.json'), JSON.stringify(this.__payload()), (err) => {
       if (err) {
         throw Error('Error adding reminder -- please try again');
       }
