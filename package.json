@@ -1,6 +1,6 @@
 {
   "name": "remind-cli",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "preferGlobal": "true",
   "description": "Remind-CLI will send text messages of your choosing at given intervals",
   "author": "Clark Feusier <cfeusier@gmail.com>",
