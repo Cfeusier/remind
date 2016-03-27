@@ -27,7 +27,7 @@ export default class Remind {
 
   __fetch() {
     try {
-      let __data = JSON.parse(fs.readFileSync(path.resolve('bin/reminders.json'), 'utf8'));
+      let __data = JSON.parse(fs.readFileSync(path.resolve('reminders.json'), 'utf8'));
       this.__reminders = __data.reminders;
       this.__sent = __data.sent;
       this.__lubo = __data.lubo;
